@@ -35,7 +35,7 @@ public class AuthService {
     );
 
     @Transactional
-    public void registerUser(RegisterRequest registerRequest) {
+    public void registerUser(@Valid RegisterRequest registerRequest) {
         String username = registerRequest.getUsername().toLowerCase().trim();
 
         if (userRepository.existsByUsername(username)) {
@@ -43,20 +43,20 @@ public class AuthService {
         }
 
         if (!isStrongPassword(registerRequest.getPassword())) {
-            throw new IllegalArgumentException("Password must be at least 8 characters long, with 1 uppercase, 1 lowercase, 1 number, and 1 special character");
+            throw new IllegalArgumentException("Password must be at least 8 characters long, include 1 uppercase, 1 lowercase, 1 digit, and 1 special character");
         }
 
         User user = User.builder()
                 .fullName(registerRequest.getFullName())
                 .username(username)
                 .password(passwordEncoder.encode(registerRequest.getPassword()))
-                .role(registerRequest.getRole())
+                .role(registerRequest.getRole())  // Should be "ADMIN", not "ROLE_ADMIN"
                 .build();
 
         userRepository.save(user);
     }
 
-    public TokenPair login(LoginRequest loginRequest) {
+    public TokenPair login(@Valid LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getUsername().toLowerCase().trim(),
@@ -82,12 +82,11 @@ public class AuthService {
             throw new IllegalArgumentException("User not found");
         }
 
-        UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
-                );
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                userDetails,
+                null,
+                userDetails.getAuthorities()
+        );
 
         String accessToken = jwtService.generateAccessToken(authentication);
         return new TokenPair(accessToken, refreshToken);

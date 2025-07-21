@@ -1,5 +1,4 @@
 package com.auth.jwtsecurity.controller;
-
 import com.auth.jwtsecurity.dto.LoginRequest;
 import com.auth.jwtsecurity.dto.RefreshTokenRequest;
 import com.auth.jwtsecurity.dto.RegisterRequest;
@@ -43,5 +42,5 @@ public class AuthController {
         ));
     }
 
-    // ✅ Logout endpoint removed
+
 }

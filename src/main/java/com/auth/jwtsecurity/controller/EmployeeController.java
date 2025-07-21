@@ -9,24 +9,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.Map;
-
 @Slf4j
 @RestController
 @RequestMapping("/api/employees")
 @RequiredArgsConstructor
 public class EmployeeController {
-
     private final EmployeeService employeeService;
-
     @GetMapping
     @PreAuthorize("hasAnyRole('EMPLOYEE', 'ADMIN', 'TEAM_LEAD', 'HR', 'MANAGER')")
     public ResponseEntity<?> getAllEmployees() {
         log.info("Fetching all employees");
         return ResponseEntity.ok(employeeService.getAllEmployees());
     }
-
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('EMPLOYEE', 'ADMIN', 'TEAM_LEAD', 'HR', 'MANAGER')")
     public ResponseEntity<?> getEmployeeById(@PathVariable Long id) {
@@ -36,15 +31,12 @@ public class EmployeeController {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(Map.of("error", "Employee with id " + id + " not found")));
     }
-
-
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
     public ResponseEntity<?> createEmployee(@Valid @RequestBody Employee employee) {
         log.info("Creating employee: {}", employee);
         return ResponseEntity.ok(employeeService.saveEmployee(employee));
     }
-
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<?> updateEmployee(@PathVariable Long id, @Valid @RequestBody Employee employee) {
@@ -56,7 +48,6 @@ public class EmployeeController {
         log.info("Updating employee with ID: {}", id);
         return ResponseEntity.ok(employeeService.saveEmployee(employee));
     }
-
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteEmployee(@PathVariable Long id) {

@@ -7,15 +7,13 @@ import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.util.Base64;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.security.interfaces.RSAPublicKey;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -35,7 +33,7 @@ public class JwtService {
 
     private final RsaKeyUtil rsaKeyUtil;
     private PrivateKey privateKey;
-    private PublicKey publicKey;
+    private RSAPublicKey publicKey;
 
     public JwtService(RsaKeyUtil rsaKeyUtil) {
         this.rsaKeyUtil = rsaKeyUtil;
@@ -45,7 +43,7 @@ public class JwtService {
     public void initKeys() {
         try {
             privateKey = rsaKeyUtil.loadPrivateKey(privateKeyPath);
-            publicKey = rsaKeyUtil.loadPublicKey(publicKeyPath);
+            publicKey = (RSAPublicKey) rsaKeyUtil.loadPublicKey(publicKeyPath);
         } catch (Exception e) {
             log.error("Failed to load RSA keys", e);
             throw new RuntimeException("Error loading RSA keys", e);
@@ -68,10 +66,19 @@ public class JwtService {
         return generateToken(authentication, refreshExpirationMs, claims);
     }
 
-    private String generateToken(Authentication authentication, long expirationInMs, Map<String, String> claims) {
+    private String generateToken(Authentication authentication, long expirationInMs, Map<String, String> additionalClaims) {
         UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expirationInMs);
+
+        Map<String, Object> claims = new HashMap<>(additionalClaims);
+
+        List<String> roles = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .map(role -> role.replace("ROLE_", "")) 
+                .toList();
+
+        claims.put("roles", roles);
 
         return Jwts.builder()
                 .header().add("typ", "JWT").add("kid", "default").and()
@@ -128,5 +135,9 @@ public class JwtService {
 
     public byte[] getEncodedPublicKey() {
         return publicKey.getEncoded();
+    }
+
+    public RSAPublicKey getRsaPublicKey() {
+        return publicKey;
     }
 }
