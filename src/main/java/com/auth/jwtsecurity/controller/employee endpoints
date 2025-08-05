@@ -1,0 +1,4 @@
+http://localhost:8090/api/employees (all employees -> admin, manager, hr, teamlead, employees)
+http://localhost:8090/api/employees/{id} (get employee by id -> admin, manager, hr, teamlead, employees)
+http://localhost:8090/api/employee (create new employee -> ADMIN, HR)
+

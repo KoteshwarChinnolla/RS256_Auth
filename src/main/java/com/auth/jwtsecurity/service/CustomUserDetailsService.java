@@ -1,5 +1,4 @@
 package com.auth.jwtsecurity.service;
-
 import com.auth.jwtsecurity.repository.UserRepository;
 import com.auth.jwtsecurity.model.User;
 import lombok.RequiredArgsConstructor;

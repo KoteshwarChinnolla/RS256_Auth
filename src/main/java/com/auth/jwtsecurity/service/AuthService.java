@@ -60,9 +60,7 @@ public class AuthService {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getUsername().toLowerCase().trim(),
-                        loginRequest.getPassword()
-                )
-        );
+                        loginRequest.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         return jwtService.generateTokenPair(authentication);
@@ -72,8 +70,7 @@ public class AuthService {
         String refreshToken = request.getRefreshToken();
 
         if (!jwtService.isRefreshToken(refreshToken)) {
-            throw new IllegalArgumentException("Invalid refresh token");
-        }
+            throw new IllegalArgumentException("Invalid refresh token");}
 
         String username = jwtService.extractUsernameFromToken(refreshToken);
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);

@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 public class RateLimitFilter implements Filter {
-    private static final int LIMIT = 100; // Max requests per minute per IP
-    private static final long TIME_WINDOW_MS = 60 * 1000; // 1 minute
+    private static final int LIMIT = 100;
+    private static final long TIME_WINDOW_MS = 60 * 1000;
     private final Map<String, RequestInfo> ipRequestMap = new ConcurrentHashMap<>();
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
