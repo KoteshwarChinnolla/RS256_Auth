@@ -1,7 +1,7 @@
 package com.auth.jwtsecurity.service;
 
 import com.auth.jwtsecurity.dto.LoginRequest;
-import com.auth.jwtsecurity.dto.RefreshTokenRequest;
+//import com.auth.jwtsecurity.dto.RefreshTokenRequest;
 import com.auth.jwtsecurity.dto.RegisterRequest;
 import com.auth.jwtsecurity.dto.TokenPair;
 import com.auth.jwtsecurity.model.User;
@@ -66,11 +66,10 @@ public class AuthService {
         return jwtService.generateTokenPair(authentication);
     }
 
-    public TokenPair refreshToken(@Valid RefreshTokenRequest request) {
-        String refreshToken = request.getRefreshToken();
-
+    public TokenPair refreshTokenFromCookie(String refreshToken) {
         if (!jwtService.isRefreshToken(refreshToken)) {
-            throw new IllegalArgumentException("Invalid refresh token");}
+            throw new IllegalArgumentException("Invalid refresh token");
+        }
 
         String username = jwtService.extractUsernameFromToken(refreshToken);
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
@@ -86,10 +85,13 @@ public class AuthService {
         );
 
         String accessToken = jwtService.generateAccessToken(authentication);
-        return new TokenPair(accessToken, refreshToken);
+        return new TokenPair(accessToken, refreshToken); // reusing the same refresh token
     }
+
 
     private boolean isStrongPassword(String password) {
         return PASSWORD_PATTERN.matcher(password).matches();
     }
+
+
 }
